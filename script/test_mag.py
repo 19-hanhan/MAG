@@ -11,6 +11,7 @@ parser.add_argument("--dataset", type=str, required=True, help="Dataset name (fo
 parser.add_argument("--dim", type=int, required=True, help="dimension of base & query")
 
 ## Optional parameters build
+parser.add_argument("--knn_method", type=str, default="ivfpq", help="Method to use for knn (ivfpq, givfpq, bruteforce)")
 parser.add_argument("--L", type=int, default=300, help="inital pool size")
 parser.add_argument("--R", type=int, default=8, help="select degree for knng graph")
 parser.add_argument("--C", type=int, default=300, help="candidate pool size")
@@ -28,10 +29,10 @@ parser.add_argument("--at", type=int, default=1, help="the recall at")
 args = parser.parse_args()
 base_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_base.fbin'
 query_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_query.fbin'
-knng_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_knn.ivecs'
+knng_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_knn_{args.knn_method}.ivecs'
 gt_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_groundtruth.ivecs'
-mag_file = f'index/{args.dataset}.mag'
-result_file = f'result/{args.dataset}.knn'
+mag_file = f'data/{args.dataset}/{args.dataset}.mag'
+result_file = f'data/{args.dataset}/{args.dataset}_result.txt'
 build_command = 'cmake --build build'
 run_command_index = ['build/test/test_mag', base_file, knng_file, str(args.L), str(args.R), str(args.C)]
 run_command_index.extend([mag_file, "index", str(args.dim), str(args.R_IP), str(args.M), str(args.Threshold)])

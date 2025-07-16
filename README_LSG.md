@@ -6,11 +6,14 @@
 - CMake 2.8+
 - Boost 1.55+
 - Faiss (optional)
+- Cuvs (optional)
 
 ```shell
 sudo apt install libomp-dev libboost-all-dev  -y
 
 conda install faiss-cpu -y
+
+conda install cupy cuvs -c conda-forge -c nvidia -c rapidsai -y
 ```
 
 ### Compile On Linux
@@ -57,12 +60,12 @@ cmake -B build && cmake --build build -j
 ## 3. Run Test
 
 ```shell
-mkdir -p dataset/sift index result
+mkdir -p data/sift1M
 
 ## generate data file
-python script/generate_bin_dataset.py --datadir /home/infiniflow/Downloads/dataset --dataset sift
-python script/generate_knn_graph.py --datadir /home/infiniflow/Downloads/dataset --dataset sift --pq_m 32 --save_k 10
+python script/generate_bin_dataset.py --datadir /data1/data --dataset sift1M
+python script/generate_knng_ivfpq.py --datadir /data1/data --dataset sift1M --pq_m 32 --save_k 10
 
 ## run MAG test
-python script/test_mag.py --data_dir dataset --dataset sift --dim 128
+python script/test_mag.py --data_dir data --dataset sift1M --dim 128
 ```

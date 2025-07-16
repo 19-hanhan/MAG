@@ -5,7 +5,7 @@ from utils import *
 from argparse import ArgumentParser
 
 parser = ArgumentParser(description="Example script: "
-                                    "\n\tpython script/generate_knn_graph.py --datadir /data1/data --dataset sift1M")
+                                    "\n\tpython script/generate_knng_ivfpq.py --datadir /data1/data --dataset sift1M")
 
 ## Required parameters
 parser.add_argument("--datadir", type=str, required=True, help="The root location of your dataset folder")
@@ -56,8 +56,8 @@ for nprobe in range(args.batch_size, args.nlist // 2 + 1, args.batch_size):
     print("%d;%.2f;%.4f" % (nprobe, qps, recall))
     if recall > 0.95:
         t0 = time.time()
-        D, I = index.search(xb, args.save_k)
+        D, I = index.search(xb, args.save_k * 3)
         t1 = time.time()
         print(f"search knn time : {t1 - t0:.2f} seconds")
-        save_vecs(f'dataset/{args.dataset}/{args.dataset}_knn.ivecs', I.astype(np.int32))
+        save_vecs(f'data/{args.dataset}/{args.dataset}_knn_ivfpq.ivecs', I[:, :args.save_k].astype(np.int32))
         break

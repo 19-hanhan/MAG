@@ -1,7 +1,5 @@
 build/
-index/
-result/
-dataset/
+data/
 tmp*/
 .vscode/
 .idea/

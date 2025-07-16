@@ -26,8 +26,8 @@ def save_bin_vecs(fname, data):
 
 print(type(xb[0][0]))
 print(type(xq[0][0]))
-save_bin_vecs(f'dataset/{args.dataset}/{args.dataset}_base.fbin', xb)
-save_bin_vecs(f'dataset/{args.dataset}/{args.dataset}_query.fbin', xq)
+save_bin_vecs(f'data/{args.dataset}/{args.dataset}_base.fbin', xb)
+save_bin_vecs(f'data/{args.dataset}/{args.dataset}_query.fbin', xq)
 
 index = faiss.IndexFlatIP(dim)
 index.add(xb)
@@ -35,4 +35,4 @@ t0 = time.time()
 D, I = index.search(xq, 100)
 t1 = time.time()
 print(f"search IP gt time : {t1 - t0:.2f} seconds")
-save_vecs(f'dataset/{args.dataset}/{args.dataset}_groundtruth.ivecs', I.astype(np.int32))
+save_vecs(f'data/{args.dataset}/{args.dataset}_groundtruth.ivecs', I.astype(np.int32))

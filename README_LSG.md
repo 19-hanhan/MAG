@@ -57,16 +57,12 @@ cmake -B build && cmake --build build -j
 ## 3. Run Test
 
 ```shell
+mkdir -p dataset/sift index result
+
 ## generate data file
 python script/generate_bin_dataset.py --datadir /home/infiniflow/Downloads/dataset --dataset sift
 python script/generate_knn_graph.py --datadir /home/infiniflow/Downloads/dataset --dataset sift --pq_m 32 --save_k 10
 
-## build MAG index
-./build/test/test_mag dataset/sift/sift_base.fbin dataset/sift/sift_knn.ivecs 300 8 300 index/sift.mag index 128 16 16 8
-
-## search in index
-./build/test/test_mag dataset/sift/sift_base.fbin dataset/sift/sift_query.fbin index/sift.mag 300 10 result/sift.log search 128
-
-## caculate recall
-python script/get_recall.py --gt_path dataset/sift/sift_groundtruth.ivecs --knn_result result/sift.knn --at 1
+## run MAG test
+python script/test_mag.py --data_dir dataset --dataset sift --dim 128
 ```

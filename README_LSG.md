@@ -1,0 +1,72 @@
+## 1. Building Instruction
+
+### Prerequisites
+
+- GCC 4.9+ with OpenMP
+- CMake 2.8+
+- Boost 1.55+
+- Faiss (optional)
+
+```shell
+sudo apt install libomp-dev libboost-all-dev  -y
+
+conda install faiss-cpu -y
+```
+
+### Compile On Linux
+
+```shell
+cmake -B build && cmake --build build -j
+```
+
+## 2. Test MAG indexing
+
+### a. mode is index
+
+- `DATA_PATH`: the path of the base data in `bin` format.
+- `KNNG_PATH`: the path of the pre-built kNN graph in *Step 1.*.
+- `L`: inital pool size.
+- `R`: select degree for knng graph.
+- `C`: candidate pool size.
+- `INDEX_PATH`: output index path.
+- `MODE`: index.
+- `DIM`: dimension of dataset.
+- `R_IP`: max ip_neighbors.
+- `M`: neighborhood size of output index (mix index of L2 & IP).
+- `T`: ip threshold.
+
+```shell
+./build/test/test_mag DATA_PATH KNNG_PATH L R C INDEX_PATH index DIM R_IP M Threshold
+```
+
+### b. mode is search
+
+- `DATA_PATH`: the path of the base data in `bin` format.
+- `QUERY_PATH`: the path of the query data in `bin` format.
+- `INDEX_PATH`: index path for serach.
+- `search_L`: search pool size, the larger the better but slower (must larger than K).
+- `K`: the result size.
+- `RESULT_PATH`: knn result of search.
+- `MODE`: search.
+- `DIM`: dimension of query.
+
+```shell
+./build/test/test_mag DATA_PATH QUERY_PATH INDEX_PATH search_L K RESULT_PATH search DIM
+```
+
+## 3. Run Test
+
+```shell
+## generate data file
+python script/generate_bin_dataset.py --datadir /home/infiniflow/Downloads/dataset --dataset sift
+python script/generate_knn_graph.py --datadir /home/infiniflow/Downloads/dataset --dataset sift --pq_m 32 --save_k 10
+
+## build MAG index
+./build/test/test_mag dataset/sift/sift_base.fbin dataset/sift/sift_knn.ivecs 300 8 300 index/sift.mag index 128 16 16 8
+
+## search in index
+./build/test/test_mag dataset/sift/sift_base.fbin dataset/sift/sift_query.fbin index/sift.mag 300 10 result/sift.log search 128
+
+## caculate recall
+python script/get_recall.py --gt_path dataset/sift/sift_groundtruth.ivecs --knn_result result/sift.knn --at 1
+```

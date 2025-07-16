@@ -1,0 +1,9 @@
+build/
+index/
+result/
+dataset/
+tmp*/
+.vscode/
+.idea/
+
+*.pyc

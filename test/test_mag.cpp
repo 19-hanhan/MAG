@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
         index.Build(points_num, data_load, paras);
         auto e = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> diff = e - s;
-        std::cout << "Build Time: " << diff.count() << "\n";
+        std::cout << "Build Time: " << diff.count() << " seconds\n";
         index.Save(argv[6]);
     } else {
         std::cout << "Query Path: " << argv[2] << std::endl;
@@ -96,9 +96,9 @@ int main(int argc, char **argv) {
         }
         auto e = std::chrono::high_resolution_clock::now();
 
-        std::chrono::duration<double> diff = e - s;
-        std::cout << "Average query time: " << std::chrono::duration_cast<std::chrono::milliseconds>(e - s).count() / (
-            double) query_num << "ms" << std::endl;
+        double duration_s = std::chrono::duration<double>(e - s).count();
+        double qps = query_num / duration_s;
+        std::cout << "Total query time: " << duration_s << " ms, QPS: " << qps << std::endl;
         std::cout << "Average metric computations: " << metric_compuations / (double) query_num << std::endl;
         save_results(argv[6], res);
     }

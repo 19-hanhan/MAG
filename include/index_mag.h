@@ -481,17 +481,30 @@ namespace MAG {
 
             // unsigned cnt = 0;
 
-#pragma omp parallel for
-            for (unsigned n = 0; n < nd_; ++n) {
-                // std::cout << "sync prune: " << n << std::endl;
-                std::vector<Neighbor> pool, tmp;
-                boost::dynamic_bitset<> flags{nd_, 0};
-                pool.clear();
-                tmp.clear();
-                flags.reset();
-                get_nn_neighbors(data_ + dimension_ * n, parameters, flags, tmp, pool);
-                sync_prune(n, pool, parameters, flags, cut_graph_);
+#pragma omp parallel
+            {
+                int thread_id = omp_get_thread_num();
+                int prev_display = (thread_id == 0) ? 0 : -1;
+
+#pragma omp for schedule(dynamic)
+                for (unsigned n = 0; n < nd_; ++n) {
+                    // std::cout << "sync prune: " << n << std::endl;
+                    std::vector<Neighbor> pool, tmp;
+                    boost::dynamic_bitset<> flags{nd_, 0};
+                    pool.clear();
+                    tmp.clear();
+                    flags.reset();
+                    get_nn_neighbors(data_ + dimension_ * n, parameters, flags, tmp, pool);
+                    sync_prune(n, pool, parameters, flags, cut_graph_);
+
+                    if (prev_display >= 0 && n >= prev_display + 10000) {
+                        prev_display = n;
+                        printf("  %d / %d\r", n, nd_ - n);
+                        fflush(stdout);
+                    }
+                }
             }
+
 #pragma omp parallel for
             for (unsigned n = 0; n < nd_; ++n) {
                 InterInsert(n, range, locks, cut_graph_);
@@ -587,10 +600,14 @@ namespace MAG {
             Load_nn_graph(nn_graph_path.c_str());
             data_ = data;
             init_graph(parameters);
-            std::cout << "load nn graph!" << std::endl;
+            std::cout << "load nn graph! Num = " << final_graph_.size() << ", Dim = " << final_graph_[0].size() <<
+                    std::endl;
             SimpleNeighbor *cut_graph_ = new SimpleNeighbor[nd_ * (size_t) range];
+            auto s = std::chrono::high_resolution_clock::now();
             Link(parameters, cut_graph_);
-            std::cout << "Link done!" << std::endl;
+            auto e = std::chrono::high_resolution_clock::now();
+            double duration_s = std::chrono::duration<double>(e - s).count();
+            std::cout << "K-MRNG done! use time " << duration_s << " seconds" << std::endl;
             final_graph_.resize(nd_);
 
             for (size_t i = 0; i < nd_; i++) {
@@ -610,8 +627,12 @@ namespace MAG {
 
             ip_graph_.resize(nd_);
 
+            s = std::chrono::high_resolution_clock::now();
 #pragma omp parallel
             {
+                int thread_id = omp_get_thread_num();
+                int prev_display = (thread_id == 0) ? 0 : -1;
+
                 std::vector<IpNeighbor> pool, tmp;
                 boost::dynamic_bitset<> flags{nd_, 0};
 #pragma omp for schedule(dynamic, 100)
@@ -621,8 +642,17 @@ namespace MAG {
                     flags.reset();
                     get_ip_neighbors(data_ + dimension_ * n, parameters, flags, tmp, pool);
                     ip_graph_[n] = pruneEdge(n, parameters, pool, threshold);
+
+                    if (prev_display >= 0 && n >= prev_display + 10000) {
+                        prev_display = n;
+                        printf("  %d / %d\r", n, nd_ - n);
+                        fflush(stdout);
+                    }
                 }
             }
+            e = std::chrono::high_resolution_clock::now();
+            duration_s = std::chrono::duration<double>(e - s).count();
+            std::cout << "K-NDG done! use time " << duration_s << " seconds" << std::endl;
             CompactGraph mix_graph;
             mix_graph.resize(nd_);
             for (size_t i = 0; i < nd_; i++) {

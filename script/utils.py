@@ -40,6 +40,7 @@ def sanitize(x):
 
 ## Save numpy array to vecs format
 def save_vecs(fname, data):
+    assert type(data) == np.ndarray
     dim = data.shape[1]
     with open(fname, 'wb') as f:
         for vec in data:
@@ -63,6 +64,8 @@ def load_data(prefix, dataset, *, ntrain=65536):
 
 
 def matrix_recall(ids, gt, at):
+    assert type(ids) == np.ndarray
+    assert type(gt) == np.ndarray
     set_a = [set(row) for row in ids]
     set_b = [set(row) for row in gt[:, :at]]
     count = sum(len(sa & sb) for sa, sb in zip(set_a, set_b))

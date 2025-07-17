@@ -66,6 +66,7 @@ mkdir -p data/sift1M
 python script/generate_bin_dataset.py --datadir /data1/data --dataset sift1M
 python script/generate_knng_ivfpq.py --datadir /data1/data --dataset sift1M --pq_m 32 --save_k 10
 python script/generate_knng_givfpq.py --datadir /data1/data --dataset sift1M --pq_m 32 --save_k 10
+python script/generate_knng_bruteforce.py --datadir /data1/data --dataset sift1M --save_k 10
 
 ## run MAG test
 python script/test_mag.py --data_dir data --dataset sift1M --dim 128

@@ -5,18 +5,18 @@ from utils import *
 from argparse import ArgumentParser
 
 parser = ArgumentParser(description="Example script: "
-                                    "\n\tpython script/generate_knng_ivfpq.py --datadir /data1/data --dataset sift1M")
+                                    "\n\tpython script/generate_knng_ivfpq.py --datadir /data1/data --dataset sift1M --save_k=16")
 
 ## Required parameters
 parser.add_argument("--datadir", type=str, required=True, help="The root location of your dataset folder")
 parser.add_argument("--dataset", type=str, required=True, help="Dataset name (Folder name must match file prefix)")
+parser.add_argument("--save_k", type=int, required=True, help="Number of nearest neighbors to save in the index")
 
 ## Optional parameters
 parser.add_argument("--nlist", type=int, default=1024, help="Number of clusters to search in the index")
 parser.add_argument("--pq_m", type=int, default=16, help="Number of subquantizers for product quantization")
 parser.add_argument("--nbit", type=int, default=8, help="Size of each subquantizer in bits")
 parser.add_argument("--batch_size", type=int, default=32, help="Number of nearest neighbors to search for")
-parser.add_argument("--save_k", type=int, default=32, help="Number of nearest neighbors to save in the index")
 
 ## generate para
 args = parser.parse_args()
@@ -59,5 +59,5 @@ for nprobe in range(args.batch_size, args.nlist // 2 + 1, args.batch_size):
         D, I = index.search(xb, args.save_k * 3)
         t1 = time.time()
         print(f"search knn time : {t1 - t0:.2f} seconds")
-        save_vecs(f'data/{args.dataset}/{args.dataset}_knn_ivfpq.ivecs', I[:, :args.save_k].astype(np.int32))
+        save_vecs(f'data/{args.dataset}/{args.dataset}_knn{args.save_k}_ivfpq.ivecs', I[:, :args.save_k].astype(np.int32))
         break

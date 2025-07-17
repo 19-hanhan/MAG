@@ -75,5 +75,5 @@ python script/generate_knng_givfpq.py --datadir /data1/data --dataset sift1M --p
 python script/generate_knng_bruteforce.py --datadir /data1/data --dataset sift1M --save_k 10
 
 ## run MAG test
-python script/test_mag.py --data_dir data --dataset sift1M --dim 128 --knn_method bruteforce
+python script/test_mag.py --data_dir data --dataset sift1M --dim 128
 ```

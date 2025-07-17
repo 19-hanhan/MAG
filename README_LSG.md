@@ -40,6 +40,9 @@ cmake -B build && cmake --build build -j
 
 ```shell
 ./build/test/test_mag DATA_PATH KNNG_PATH L R C INDEX_PATH index DIM R_IP M Threshold
+
+## example
+./build/test/test_mag data/sift1M/sift1M_base.fbin data/sift1M/sift1M_knn_ivfpq.ivecs 300 8 300 data/sift1M/sift1M.mag index 128 16 16 8
 ```
 
 ### b. mode is search
@@ -55,6 +58,9 @@ cmake -B build && cmake --build build -j
 
 ```shell
 ./build/test/test_mag DATA_PATH QUERY_PATH INDEX_PATH search_L K RESULT_PATH search DIM
+
+## example
+./build/test/test_mag data/sift1M/sift1M_base.fbin data/sift1M/sift1M_query.fbin data/sift1M/sift1M.mag 300 10 data/sift1M/sift1M_result.txt search 128
 ```
 
 ## 3. Run Test
@@ -69,5 +75,5 @@ python script/generate_knng_givfpq.py --datadir /data1/data --dataset sift1M --p
 python script/generate_knng_bruteforce.py --datadir /data1/data --dataset sift1M --save_k 10
 
 ## run MAG test
-python script/test_mag.py --data_dir data --dataset sift1M --dim 128
+python script/test_mag.py --data_dir data --dataset sift1M --dim 128 --knn_method bruteforce
 ```

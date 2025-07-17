@@ -1,3 +1,4 @@
+import re
 import subprocess
 from utils import *
 from argparse import ArgumentParser
@@ -20,37 +21,55 @@ parser.add_argument("--M", type=int, default=16, help="neighborhood size of outp
 parser.add_argument("--Threshold", type=int, default=8, help="ip threshold (min ipneighbors)")
 
 ## Optional parameters search
-parser.add_argument("--search_L", type=int, default=300,
-                    help="search pool size, the larger the better but slower (must larger than K)")
 parser.add_argument("--K", type=int, default=10, help="the result size")
 parser.add_argument("--at", type=int, default=1, help="the recall at")
+parser.add_argument("--slow_test", action='store_true', help="Run slow test with big efSearch (default: False)")
+
+## global para
+search_Ls = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000]
+search_Ls_big = [6000, 7000, 8000, 9000 , 10000, 20000]
 
 ## generate para
 args = parser.parse_args()
+if args.slow_test:
+    search_Ls.extend(search_Ls_big)
 base_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_base.fbin'
 query_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_query.fbin'
 knng_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_knn_{args.knn_method}.ivecs'
 gt_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_groundtruth.ivecs'
-mag_file = f'data/{args.dataset}/{args.dataset}.mag'
+mag_file = f'data/{args.dataset}/{args.dataset}_{args.knn_method}.mag'
 result_file = f'data/{args.dataset}/{args.dataset}_result.txt'
 build_command = 'cmake --build build'
 run_command_index = ['build/test/test_mag', base_file, knng_file, str(args.L), str(args.R), str(args.C)]
 run_command_index.extend([mag_file, "index", str(args.dim), str(args.R_IP), str(args.M), str(args.Threshold)])
 run_command_index = ' '.join(run_command_index)
-run_command_search = ['build/test/test_mag', base_file, query_file, mag_file, str(args.search_L), str(args.K)]
-run_command_search.extend([result_file, "search", str(args.dim)])
-run_command_search = ' '.join(run_command_search)
 
 ## run mag
 print(build_command)
 subprocess.run(build_command, shell=True)
 print(run_command_index)
 subprocess.run(run_command_index, shell=True)
-print(run_command_search)
-subprocess.run(run_command_search, shell=True)
 
 ## count recall
-gt = ivecs_read(gt_file)
-I = np.loadtxt(result_file, dtype=int)
-recall = matrix_recall(I, gt, args.at)
-print(f"recall@{args.at} = {recall}")
+print(f"search_L;QPS;Recall@{args.at};dis_cnt")
+for search_L in search_Ls:
+    run_command_search = ['build/test/test_mag', base_file, query_file, mag_file, str(search_L), str(args.K)]
+    run_command_search.extend([result_file, "search", str(args.dim)])
+    run_command_search = ' '.join(run_command_search)
+    context = subprocess.run(run_command_search, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True).stdout
+
+    qps_pattern = r"QPS:\s*([-+]?\d*\.?\d+)"
+    qps_match = re.search(qps_pattern, context)
+    qps = float(qps_match.group(1))
+
+    dis_cnt_pattern = r"Average metric computations:\s*([-+]?\d*\.?\d+)"
+    dis_cnt_match = re.search(dis_cnt_pattern, context)
+    dis_cnt = float(dis_cnt_match.group(1))
+
+    gt = ivecs_read(gt_file)
+    I = np.loadtxt(result_file, dtype=int)
+    recall = matrix_recall(I, gt, args.at)
+
+    print("%d;%.2f;%.4f;%.2f" % (search_L, qps, recall, dis_cnt))
+    if recall == 1.0:
+        break

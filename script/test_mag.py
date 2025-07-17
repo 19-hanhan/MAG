@@ -39,7 +39,7 @@ if args.slow_test:
 base_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_base.fbin'
 query_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_query.fbin'
 knng_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_knn{args.M}_{args.knn_method}.ivecs'
-gt_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_groundtruth.ivecs'
+gt_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_inner_product_groundtruth.ivecs'
 mag_file = f'data/{args.dataset}/{args.dataset}_{args.knn_method}.mag'
 result_file = f'data/{args.dataset}/{args.dataset}_result.txt'
 csv_file = f'data/{args.dataset}/{args.dataset}-{args.knn_method}_M{args.M}_R{args.R}.csv'

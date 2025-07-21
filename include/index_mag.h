@@ -499,7 +499,7 @@ namespace MAG {
 
                     if (prev_display >= 0 && n >= prev_display + 10000) {
                         prev_display = n;
-                        printf("  %d / %d\r", n, nd_ - n);
+                        printf("  %d / %d  \r", n, nd_ - n);
                         fflush(stdout);
                     }
                 }
@@ -645,7 +645,7 @@ namespace MAG {
 
                     if (prev_display >= 0 && n >= prev_display + 10000) {
                         prev_display = n;
-                        printf("  %d / %d\r", n, nd_ - n);
+                        printf("  %d / %d  \t\r", n, nd_ - n);
                         fflush(stdout);
                     }
                 }

@@ -42,7 +42,7 @@ knng_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_knn{args.M}_{args.kn
 gt_file = f'{args.data_dir}/{args.dataset}/{args.dataset}_inner_product_groundtruth.ivecs'
 mag_file = f'data/{args.dataset}/{args.dataset}_{args.knn_method}.mag'
 result_file = f'data/{args.dataset}/{args.dataset}_result.txt'
-csv_file = f'data/{args.dataset}/{args.dataset}-{args.knn_method}_M{args.M}_R{args.R}.csv'
+csv_file = f'data/{args.dataset}/{args.dataset}-{args.knn_method}_M{args.M}_R{args.R}_RIP{args.R_IP}_T{args.Threshold}.csv'
 build_command = 'cmake --build build'
 run_command_index = ['build/test/test_mag', base_file, knng_file, str(args.L), str(args.R), str(args.C)]
 run_command_index.extend([mag_file, "index", str(args.dim), str(args.R_IP), str(args.M), str(args.Threshold)])
@@ -69,14 +69,14 @@ for search_L in search_Ls:
 
     dis_cnt_pattern = r"Average metric computations:\s*([-+]?\d*\.?\d+)"
     dis_cnt_match = re.search(dis_cnt_pattern, context)
-    dis_cnt = float(dis_cnt_match.group(1))
+    dis_cnt = int(float(dis_cnt_match.group(1)))
 
     gt = ivecs_read(gt_file)
     I = np.loadtxt(result_file, dtype=int)
     recall = matrix_recall(I, gt, args.at)
 
-    print("%d;%.2f;%.4f;%.2f" % (search_L, qps, recall, dis_cnt))
-    csvinfo.append([search_L, round(qps, 2), round(recall, 4), round(dis_cnt, 2)])
+    print("%d;%.2f;%.4f;%d" % (search_L, qps, recall, dis_cnt))
+    csvinfo.append([search_L, round(qps, 2), round(recall, 4), dis_cnt])
     if recall == 1.0:
         break
 
